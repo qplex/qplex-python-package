@@ -1,0 +1,73 @@
+<project>
+
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+	<target name="init" depends="clean">
+		<loadfile property="version" srcFile="version.txt" />
+
+		<mkdir dir="build" />
+
+		<copy todir="build">
+			<fileset dir="engines">
+				<include name="*.q" />
+			</fileset>
+		</copy>
+
+		<copy todir="build">
+			<fileset dir="tools">
+				<include name="*.*" />
+			</fileset>
+		</copy>
+
+		<unzip src="build/qdk.zip" dest="build">
+			<patternset id="non.test.sources">
+				<include name="QCompiler.jar" />
+				<include name="qcompile.py" />
+			</patternset>
+		</unzip>
+
+		<javac source="1.8" target="1.8" srcdir="build" destdir="build" classpath="build/QCompiler.jar" />
+	</target>
+
+	<target name="cpp" depends="init">
+		<java fork="true" dir="build" classname="QCompilerLauncher">
+			<classpath>
+				<pathelement location="build" />
+				<pathelement location="build/QCompiler.jar" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="dist" depends="cpp">
+		<java classname="ReplaceInTextFile" fork="true" dir="build">
+			<arg value="setup.py" />
+			<arg value="@VERSION@" />
+			<arg value="${version}" />
+		</java>
+
+		<exec executable="python3" dir="build" failonerror="true">
+			<arg value="setup.py" />
+			<arg value="sdist" />
+		</exec>
+
+		<exec executable="twine" dir="build" failonerror="true">
+			<arg value="check" />
+			<arg value="dist/*" />
+		</exec>
+	</target>
+
+	<target name="dist-binary" depends="cpp">
+		<java classname="ReplaceInTextFile" fork="true" dir="build">
+			<arg value="setup.py" />
+			<arg value="@VERSION@" />
+			<arg value="${version}" />
+		</java>
+
+		<exec executable="python3" dir="build" failonerror="true">
+			<arg value="setup.py" />
+			<arg value="bdist_wheel" />
+		</exec>
+	</target>
+</project>
