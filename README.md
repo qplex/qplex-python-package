@@ -38,7 +38,7 @@ You can use the QPLEX Python Package to perform the following types of analysis:
 
 ## Documentation
 
-The official documentation is avaiable [here](https://qplex.org/documentation/). 
+The official documentation is available [here](https://qplex.org/documentation/). 
 
 ## How to get it
 
